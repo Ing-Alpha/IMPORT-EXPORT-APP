@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("USER")
+  labels    Label[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  address   String
+  country   String
+  phone     String?
+  email     String?
+  notes     String?
+  labels    Label[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Label {
+  id               String    @id @default(cuid())
+  trackingId       String    @unique
+  client           Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId         String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  
+  // Données d'expédition
+  senderName       String    @default("")
+  senderCity       String    @default("Marseille")
+  senderPhone      String    @default("+33760248507")
+  recipientName    String    @default("")
+  recipientCity    String    @default("")
+  recipientPhone   String    @default("")
+  destination      String    @default("")
+  
+  // Détails du colis principal
+  weight           Float     @default(1.0) // en kg
+  length           Int       @default(30) // en cm
+  width            Int       @default(20) // en cm
+  height           Int       @default(10) // en cm
+  serviceCode      String    @default("1049.00")
+  serviceType      String    @default("Sous 1 semaine | Colisso")
+  cost             Float?    // coût du service
+  
+  // Statut
+  status           String    @default("DRAFT") // DRAFT, PENDING, GENERATED, SHIPPED, DELIVERED, CANCELLED
+  paymentStatus    String    @default("Payé")
+  
+  // Relations
+  packages         Package[] // Un étiquette peut contenir plusieurs colis
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Package {
+  id               String    @id @default(cuid())
+  label            Label     @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  labelId          String
+  
+  // Détails du colis individuel
+  description      String?   // Description du contenu
+  weight           Float     @default(1.0) // en kg
+  length           Int       @default(30) // en cm
+  width            Int       @default(20) // en cm
+  height           Int       @default(10) // en cm
+  value            Float?    // Valeur déclarée du colis
+  contents         String?   // Contenu détaillé
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
