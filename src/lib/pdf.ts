@@ -34,23 +34,25 @@ export interface LabelData {
 
 export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage([400, 600]) // Format plus grand pour accommoder les colis multiples
+  const page = pdfDoc.addPage([400, 600]) // Format A5 adapté pour l'étiquette
   
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   
   const { width, height } = page.getSize()
   
-  // Header - Logo et nom de l'entreprise
-  page.drawText('colisso.fr', {
-    x: 20,
-    y: height - 30,
-    size: 12,
-    font: font,
-    color: rgb(0, 0, 0),
-  })
+  // ========================================
+  // 1. EN-TÊTE DE L'ENTREPRISE
+  // ========================================
+  // page.drawText('colisso.fr', {
+  //   x: 20,
+  //   y: height - 30,
+  //   size: 12,
+  //   font: font,
+  //   color: rgb(0, 0, 0),
+  // })
   
-  page.drawText('Colisso Multiservice', {
+  page.drawText(data.senderName, {
     x: 80,
     y: height - 30,
     size: 14,
@@ -58,7 +60,7 @@ export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
     color: rgb(0, 0, 0),
   })
   
-  page.drawText('FRA, Marseille, 13001', {
+  page.drawText(data.senderCity, {
     x: 80,
     y: height - 45,
     size: 10,
@@ -66,7 +68,7 @@ export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
     color: rgb(0, 0, 0),
   })
   
-  page.drawText('Téléphone: +33760248507', {
+  page.drawText(data.senderPhone, {
     x: 80,
     y: height - 58,
     size: 10,
@@ -74,40 +76,65 @@ export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
     color: rgb(0, 0, 0),
   })
   
-  // Code-barres simulé
+  // ========================================
+  // 2. CODE-BARRES ET NUMÉRO DE SUIVI
+  // ========================================
+  const barcodeHeight = 50
+  const barcodeY = height - 130
+  
+  // Fond du code-barres
   page.drawRectangle({
     x: 20,
-    y: height - 100,
-    width: width - 40,
-    height: 40,
+    y: barcodeY,
+    width: width - 140, // Réduit pour laisser place au QR Code
+    height: barcodeHeight,
     borderColor: rgb(0, 0, 0),
     borderWidth: 1,
   })
   
+  // Génération du motif de code-barres
+  const barWidth = (width - 164) / 40 // 40 barres au lieu de 50
+  for (let i = 0; i < 40; i++) {
+    const x = 22 + (i * barWidth)
+    if (i % 2 === 0) {
+      page.drawRectangle({
+        x: x,
+        y: barcodeY + 5,
+        width: barWidth,
+        height: barcodeHeight - 10,
+        color: rgb(0, 0, 0),
+      })
+    }
+  }
+  
+  // Numéro de suivi en petit sous le code-barres
   page.drawText(data.trackingId, {
-    x: width/2 - (data.trackingId.length * 3),
-    y: height - 88,
-    size: 10,
+    x: 20,
+    y: barcodeY - 15,
+    size: 8,
     font: font,
     color: rgb(0, 0, 0),
   })
   
+  // Numéro de suivi en grand en dessous
   page.drawText(data.trackingId, {
-    x: width/2 - (data.trackingId.length * 6),
-    y: height - 115,
-    size: 18,
+    x: 20,
+    y: barcodeY - 35,
+    size: 16,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
 
-  // QR Code réel
+  // ========================================
+  // 3. QR CODE
+  // ========================================
   try {
     const qrCodeDataURL = await generateSimpleTrackingQRCode(data.trackingId)
     const qrImage = await pdfDoc.embedPng(qrCodeDataURL)
     
     const qrSize = 60
     const qrX = width - qrSize - 20
-    const qrY = height - 100 - qrSize
+    const qrY = barcodeY
 
     page.drawImage(qrImage, {
       x: qrX,
@@ -120,7 +147,7 @@ export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
     // Fallback vers QR Code simulé en cas d'erreur
     const qrSize = 60
     const qrX = width - qrSize - 20
-    const qrY = height - 100 - qrSize
+    const qrY = barcodeY
 
     page.drawRectangle({
       x: qrX,
@@ -146,274 +173,212 @@ export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
     }
   }
   
-  let yPos = height - 140
+  // ========================================
+  // 4. INFORMATIONS DU PAQUET (CONDENSÉES)
+  // ========================================
+  let yPos = barcodeY - 65
   
-  // Référence du paquet
-  page.drawText('RÉFÉRENCE DU PAQUET:', {
+  // Informations condensées sur 2 colonnes
+  // Colonne gauche
+  page.drawText(`Date: ${data.generatedDate.split(' ')[0]}`, {
     x: 20,
     y: yPos,
-    size: 10,
-    font: boldFont,
-    color: rgb(0, 0, 0),
-  })
-  
-  yPos -= 15
-  
-  const packageInfo = `Date: ${data.generatedDate.split(' ')[0]} | Code service: ${data.serviceCode} | Poids: ${data.weight} kg | Coût: ${data.cost || 'N/A'}`
-  page.drawText(packageInfo, {
-    x: 20,
-    y: yPos,
-    size: 9,
+    size: 8,
     font: font,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 15
-  
-  page.drawText(`Longueur: ${data.length} Largeur: ${data.width} Hauteur: ${data.height}`, {
+  page.drawText(`Service: ${data.serviceCode}`, {
     x: 20,
-    y: yPos,
-    size: 9,
+    y: yPos - 10,
+    size: 8,
     font: font,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 25
-  
-  // Référence du service
-  page.drawText('RÉFÉRENCE DU SERVICE', {
+  page.drawText(`Poids: ${data.weight}kg`, {
     x: 20,
-    y: yPos,
-    size: 10,
-    font: boldFont,
+    y: yPos - 20,
+    size: 8,
+    font: font,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 15
+  // Colonne droite
+  page.drawText(`${data.length}x${data.width}x${data.height}cm`, {
+    x: 150,
+    y: yPos,
+    size: 8,
+    font: font,
+    color: rgb(0, 0, 0),
+  })
+  
+  page.drawText(`Coût: ${data.cost || 'N/A'}€`, {
+    x: 150,
+    y: yPos - 10,
+    size: 8,
+    font: font,
+    color: rgb(0, 0, 0),
+  })
   
   page.drawText(data.serviceType, {
-    x: 20,
-    y: yPos,
-    size: 10,
+    x: 150,
+    y: yPos - 20,
+    size: 8,
     font: font,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 30
+  // ========================================
+  // 5. STATUT DE PAIEMENT
+  // ========================================
+  yPos -= 35
   
-  // Statut paiement
   page.drawText('Statut paiement', {
     x: width/2 - 30,
+    y: yPos,
+    size: 10,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  })
+  
+  yPos -= 20
+  
+  // Badge vert "Payé"
+  page.drawRectangle({
+    x: width/2 - 20,
+    y: yPos - 15,
+    width: 40,
+    height: 15,
+    color: rgb(0, 0.6, 0), // Vert foncé
+  })
+  
+  page.drawText('Payé', {
+    x: width/2 - 8,
+    y: yPos - 8,
+    size: 8,
+    font: boldFont,
+    color: rgb(1, 1, 1), // Texte blanc
+  })
+  
+  // ========================================
+  // 6. DESTINATION ET CONTACT
+  // ========================================
+  yPos -= 40
+  
+  // Destination principale
+  page.drawText(data.destination, {
+    x: width/2 - (data.destination.length * 2),
     y: yPos,
     size: 12,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 25
+  yPos -= 20
   
-  // Boîte verte pour "Payé"
-  page.drawRectangle({
-    x: width/2 - 25,
-    y: yPos - 20,
-    width: 50,
-    height: 20,
-    color: rgb(0, 0.5, 0),
-  })
-  
-  page.drawText(data.paymentStatus, {
-    x: width/2 - 8,
-    y: yPos - 12,
-    size: 10,
-    font: boldFont,
-    color: rgb(1, 1, 1),
-  })
-  
-  yPos -= 50
-  
-  // Destination
-  page.drawText(data.destination, {
-    x: width/2 - (data.destination.length * 3),
+  // Téléphone destinataire
+  page.drawText(data.recipientPhone, {
+    x: width/2 - (data.recipientPhone.length * 3),
     y: yPos,
     size: 14,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 25
+  // ========================================
+  // 7. INFORMATIONS EXPÉDITEUR/DESTINATAIRE (COMPACT)
+  // ========================================
+  yPos -= 35
   
-  // Numéro de téléphone du destinataire
-  page.drawText(data.recipientPhone, {
-    x: width/2 - (data.recipientPhone.length * 4),
+  // En-têtes des colonnes
+  page.drawText('Expéditeur', {
+    x: 20,
     y: yPos,
-    size: 16,
+    size: 8,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 40
-  
-  // Section expéditeur/destinataire
-  page.drawText('Expéditeur', {
-    x: 20,
-    y: yPos,
-    size: 10,
-    font: font,
-    color: rgb(0, 0, 0),
-  })
-  
   page.drawText('Destinataire', {
-    x: 160,
+    x: 180,
     y: yPos,
-    size: 10,
-    font: font,
+    size: 8,
+    font: boldFont,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 15
+  yPos -= 12
   
+  // Noms
   page.drawText(data.senderName, {
     x: 20,
     y: yPos,
-    size: 11,
+    size: 9,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
   
   page.drawText(data.recipientName, {
-    x: 160,
+    x: 180,
     y: yPos,
-    size: 11,
+    size: 9,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 15
+  yPos -= 10
   
-  page.drawText(data.senderCity, {
+  // Villes et téléphones sur une ligne
+  page.drawText(`${data.senderCity} - ${data.senderPhone}`, {
     x: 20,
     y: yPos,
-    size: 10,
+    size: 8,
     font: font,
     color: rgb(0, 0, 0),
   })
   
-  page.drawText(data.recipientCity, {
-    x: 160,
+  page.drawText(`${data.recipientCity} - ${data.recipientPhone}`, {
+    x: 180,
     y: yPos,
-    size: 10,
+    size: 8,
     font: font,
     color: rgb(0, 0, 0),
   })
   
-  yPos -= 15
+  // ========================================
+  // 8. COLIS MULTIPLES (OPTIONNEL - COMPACT)
+  // ========================================
+  yPos -= 25
   
-  page.drawText(data.senderPhone, {
-    x: 20,
-    y: yPos,
-    size: 10,
-    font: font,
-    color: rgb(0, 0, 0),
-  })
-  
-  page.drawText(data.recipientPhone, {
-    x: 160,
-    y: yPos,
-    size: 10,
-    font: font,
-    color: rgb(0, 0, 0),
-  })
-  
-  yPos -= 30
-  
-  // Section des colis multiples
   if (data.packages && data.packages.length > 0) {
-    page.drawText('DÉTAIL DES COLIS:', {
+    page.drawText('COLIS:', {
       x: 20,
       y: yPos,
-      size: 12,
+      size: 10,
       font: boldFont,
       color: rgb(0, 0, 0),
     })
     
-    yPos -= 20
+    yPos -= 15
     
     data.packages.forEach((pkg, index) => {
-      if (yPos < 50) return // Éviter de dépasser la page
+      if (yPos < 30) return // Éviter de dépasser la page
       
-      page.drawText(`Colis ${index + 1}:`, {
+      // Informations condensées sur une ligne
+      const packageInfo = `${index + 1}. ${pkg.weight}kg ${pkg.length}x${pkg.width}x${pkg.height}cm ${pkg.value ? `${pkg.value}€` : ''}`
+      
+      page.drawText(packageInfo, {
         x: 20,
         y: yPos,
-        size: 10,
-        font: boldFont,
-        color: rgb(0, 0, 0),
-      })
-      
-      yPos -= 15
-      
-      if (pkg.description) {
-        page.drawText(`Description: ${pkg.description}`, {
-          x: 30,
-          y: yPos,
-          size: 9,
-          font: font,
-          color: rgb(0, 0, 0),
-        })
-        yPos -= 12
-      }
-      
-      page.drawText(`Poids: ${pkg.weight}kg | Dimensions: ${pkg.length}x${pkg.width}x${pkg.height}cm`, {
-        x: 30,
-        y: yPos,
-        size: 9,
+        size: 8,
         font: font,
         color: rgb(0, 0, 0),
       })
       
-      if (pkg.value) {
-        yPos -= 12
-        page.drawText(`Valeur: ${pkg.value}€`, {
-          x: 30,
-          y: yPos,
-          size: 9,
-          font: font,
-          color: rgb(0, 0, 0),
-        })
-      }
-      
-      yPos -= 20
+      yPos -= 12
     })
   }
-  
-  // QR Code simulé (rectangle avec texte)
-  const qrSize = 60
-  const qrX = width - qrSize - 20
-  const qrY = 20
-  
-  page.drawRectangle({
-    x: qrX,
-    y: qrY,
-    width: qrSize,
-    height: qrSize,
-    borderColor: rgb(0, 0, 0),
-    borderWidth: 1,
-  })
-  
-  page.drawText('QR', {
-    x: qrX + qrSize/2 - 5,
-    y: qrY + qrSize/2 - 5,
-    size: 8,
-    font: font,
-    color: rgb(0, 0, 0),
-  })
-  
-  page.drawText('Code', {
-    x: qrX + qrSize/2 - 8,
-    y: qrY + qrSize/2 - 15,
-    size: 8,
-    font: font,
-    color: rgb(0, 0, 0),
-  })
   
   return await pdfDoc.save()
 }
