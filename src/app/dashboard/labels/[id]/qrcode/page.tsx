@@ -1,27 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Download, ArrowLeft, RefreshCw } from 'lucide-react'
 
 interface LabelPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function QRCodePage({ params }: LabelPageProps) {
   const router = useRouter()
+  const resolvedParams = use(params)
   const [trackingId, setTrackingId] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchLabelInfo()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchLabelInfo = async () => {
     try {
-      const response = await fetch(`/api/labels/${params.id}`)
+      const response = await fetch(`/api/labels/${resolvedParams.id}`)
       if (response.ok) {
         const data = await response.json()
         setTrackingId(data.trackingId)

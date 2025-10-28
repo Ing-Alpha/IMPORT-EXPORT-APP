@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { translateStatus, getStatusColor as getStatusColorUtil } from '@/lib/status-translations'
 import { Package, User, MapPin, Phone, Weight, Ruler, Download, Edit, Trash2, QrCode } from 'lucide-react'
 
 interface Label {
@@ -45,21 +46,22 @@ interface Label {
 }
 
 interface LabelPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function LabelPage({ params }: LabelPageProps) {
   const router = useRouter()
+  const resolvedParams = use(params)
   const [label, setLabel] = useState<Label | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchLabel()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchLabel = async () => {
     try {
-      const response = await fetch(`/api/labels/${params.id}`)
+      const response = await fetch(`/api/labels/${resolvedParams.id}`)
       if (response.ok) {
         const data = await response.json()
         setLabel(data)
@@ -75,7 +77,7 @@ export default function LabelPage({ params }: LabelPageProps) {
 
   const handleDownloadPDF = async () => {
     try {
-      const response = await fetch(`/api/labels/${params.id}/download`)
+      const response = await fetch(`/api/labels/${resolvedParams.id}/download`)
       if (response.ok) {
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
@@ -95,7 +97,7 @@ export default function LabelPage({ params }: LabelPageProps) {
   const handleDelete = async () => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette étiquette ?')) {
       try {
-        const response = await fetch(`/api/labels/${params.id}`, {
+        const response = await fetch(`/api/labels/${resolvedParams.id}`, {
           method: 'DELETE'
         })
         if (response.ok) {
@@ -146,7 +148,7 @@ export default function LabelPage({ params }: LabelPageProps) {
         </div>
         <div className="flex space-x-2">
           <Badge className={getStatusColor(label.status)}>
-            {label.status}
+            {translateStatus(label.status)}
           </Badge>
         </div>
       </div>
@@ -155,14 +157,17 @@ export default function LabelPage({ params }: LabelPageProps) {
       <div className="flex justify-end space-x-4">
         <Button
           variant="outline"
-          onClick={() => router.push(`/dashboard/labels/${params.id}/edit`)}
+          onClick={() => router.push(`/dashboard/labels/${resolvedParams.id}/edit`)}
         >
           <Edit className="h-4 w-4 mr-2" />
           Modifier
         </Button>
         <Button
           variant="outline"
-          onClick={() => router.push(`/dashboard/labels/${params.id}/qrcode`)}
+          onClick={() => router.push(`/dashboard/labels/${resolvedParams.id}/qrcode`)}
+          disabled={label.paymentStatus !== 'Payé'}
+          className={label.paymentStatus !== 'Payé' ? 'opacity-50 cursor-not-allowed' : ''}
+          title={label.paymentStatus !== 'Payé' ? 'QR Code disponible uniquement pour les étiquettes payées' : ''}
         >
           <QrCode className="h-4 w-4 mr-2" />
           QR Code
@@ -170,6 +175,9 @@ export default function LabelPage({ params }: LabelPageProps) {
         <Button
           variant="outline"
           onClick={handleDownloadPDF}
+          disabled={label.paymentStatus !== 'Payé'}
+          className={label.paymentStatus !== 'Payé' ? 'opacity-50 cursor-not-allowed' : ''}
+          title={label.paymentStatus !== 'Payé' ? 'PDF disponible uniquement pour les étiquettes payées' : ''}
         >
           <Download className="h-4 w-4 mr-2" />
           Télécharger PDF

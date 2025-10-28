@@ -194,6 +194,9 @@ export default function LabelsPage() {
                       variant="outline" 
                       size="sm"
                       onClick={() => handleDownload(label.id)}
+                      disabled={label.paymentStatus !== 'Payé'}
+                      className={label.paymentStatus !== 'Payé' ? 'opacity-50 cursor-not-allowed' : ''}
+                      title={label.paymentStatus !== 'Payé' ? 'PDF disponible uniquement pour les étiquettes payées' : ''}
                     >
                       <Download className="h-4 w-4 mr-2" />
                       PDF

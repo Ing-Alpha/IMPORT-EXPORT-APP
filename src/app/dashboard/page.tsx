@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Users, Package, History, Plus, TrendingUp, TrendingDown, Calendar, DollarSign } from 'lucide-react'
+import { Users, Package, History, Plus, TrendingUp, TrendingDown, Calendar, DollarSign, RefreshCw } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 
 interface DashboardStats {
@@ -31,6 +31,17 @@ interface StatusData {
   [key: string]: string | number
 }
 
+interface ActivityData {
+  id: string
+  type: string
+  action: string
+  title: string
+  description: string
+  timestamp: string
+  status?: string
+  color: string
+}
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
 export default function DashboardPage() {
@@ -45,6 +56,7 @@ export default function DashboardPage() {
   })
   const [chartData, setChartData] = useState<ChartData[]>([])
   const [statusData, setStatusData] = useState<StatusData[]>([])
+  const [recentActivity, setRecentActivity] = useState<ActivityData[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -55,47 +67,31 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       
-      // Fetch clients
-      const clientsResponse = await fetch('/api/clients')
-      const clientsData = await clientsResponse.json()
-      const totalClients = clientsData.clients?.length || clientsData.length || 0
+      // Fetch dashboard statistics
+      const statsResponse = await fetch('/api/dashboard/stats')
+      if (!statsResponse.ok) {
+        throw new Error('Erreur lors de la récupération des statistiques')
+      }
+      const statsData = await statsResponse.json()
 
-      // Fetch labels
-      const labelsResponse = await fetch('/api/labels')
-      const labelsData = await labelsResponse.json()
-      const totalLabels = labelsData.labels?.length || labelsData.length || 0
+      // Fetch chart data
+      const chartsResponse = await fetch('/api/dashboard/charts')
+      if (!chartsResponse.ok) {
+        throw new Error('Erreur lors de la récupération des données de graphiques')
+      }
+      const chartsData = await chartsResponse.json()
 
-      // Calculate this month's labels
-      const currentMonth = new Date().getMonth()
-      const currentYear = new Date().getFullYear()
-      const labelsThisMonth = labelsData.labels?.filter((label: any) => {
-        const labelDate = new Date(label.createdAt)
-        return labelDate.getMonth() === currentMonth && labelDate.getFullYear() === currentYear
-      }).length || 0
+      // Fetch recent activity
+      const activityResponse = await fetch('/api/dashboard/activity')
+      if (!activityResponse.ok) {
+        throw new Error('Erreur lors de la récupération de l\'activité récente')
+      }
+      const activityData = await activityResponse.json()
 
-      // Generate mock chart data for the last 6 months
-      const mockChartData = generateChartData()
-      
-      // Generate mock status data
-      const mockStatusData = generateStatusData(labelsData.labels || labelsData || [])
-
-      // Calculate growth (mock data for now)
-      const clientsGrowth = Math.floor(Math.random() * 20) - 10
-      const labelsGrowth = Math.floor(Math.random() * 30) - 15
-      const revenue = totalLabels * 25 // Mock revenue calculation
-      const revenueGrowth = Math.floor(Math.random() * 25) - 12
-
-      setStats({
-        totalClients,
-        totalLabels,
-        labelsThisMonth,
-        clientsGrowth,
-        labelsGrowth,
-        revenue,
-        revenueGrowth
-      })
-      setChartData(mockChartData)
-      setStatusData(mockStatusData)
+      setStats(statsData.stats)
+      setChartData(chartsData.chartData)
+      setStatusData(statsData.statusData)
+      setRecentActivity(activityData.activities)
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error)
     } finally {
@@ -103,27 +99,23 @@ export default function DashboardPage() {
     }
   }
 
-  const generateChartData = (): ChartData[] => {
-    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin']
-    return months.map((month, index) => ({
-      name: month,
-      labels: Math.floor(Math.random() * 50) + 10,
-      clients: Math.floor(Math.random() * 20) + 5,
-      revenue: Math.floor(Math.random() * 1000) + 500
-    }))
-  }
-
-  const generateStatusData = (labels: any[]): StatusData[] => {
-    const statusCounts = labels.reduce((acc: any, label: any) => {
-      acc[label.status] = (acc[label.status] || 0) + 1
-      return acc
-    }, {})
-
-    return Object.entries(statusCounts).map(([status, count], index) => ({
-      name: status,
-      value: count as number,
-      color: COLORS[index % COLORS.length]
-    }))
+  const formatTimeAgo = (timestamp: string): string => {
+    const now = new Date()
+    const date = new Date(timestamp)
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    if (diffInSeconds < 60) {
+      return 'Il y a quelques secondes'
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60)
+      return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600)
+      return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`
+    } else {
+      const days = Math.floor(diffInSeconds / 86400)
+      return `Il y a ${days} jour${days > 1 ? 's' : ''}`
+    }
   }
 
   const formatCurrency = (amount: number) => {
@@ -153,9 +145,20 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-        <p className="text-gray-600">Bienvenue dans votre espace de gestion des étiquettes</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+          <p className="text-gray-600">Bienvenue dans votre espace de gestion des étiquettes</p>
+        </div>
+        <Button
+          onClick={fetchDashboardData}
+          variant="outline"
+          size="sm"
+          disabled={loading}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Actualiser
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -386,29 +389,22 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {stats.totalLabels > 0 ? (
+            {recentActivity.length > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">Étiquette générée</span>
+                {recentActivity.slice(0, 5).map((activity) => (
+                  <div key={activity.id} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${activity.color}`}></div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{activity.title}</span>
+                        <span className="text-xs text-muted-foreground">{activity.description}</span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {formatTimeAgo(activity.timestamp)}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">Il y a 2h</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm">Nouveau client ajouté</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Il y a 4h</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm">Étiquette mise à jour</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Il y a 6h</span>
-                </div>
+                ))}
               </div>
             ) : (
               <div className="text-center text-gray-500 py-8">

@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Search, Download, Eye, Package } from 'lucide-react'
+import { Search, Download, Eye, Package, QrCode } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface Label {
   id: string
@@ -38,6 +39,7 @@ interface Label {
 }
 
 export default function LabelsHistoryPage() {
+  const router = useRouter()
   const [labels, setLabels] = useState<Label[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -219,10 +221,24 @@ export default function LabelsHistoryPage() {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          onClick={() => router.push(`/dashboard/labels/${label.id}/qrcode`)}
+                          disabled={label.paymentStatus !== 'Payé'}
+                          className={label.paymentStatus !== 'Payé' ? 'opacity-50 cursor-not-allowed' : ''}
+                          title={label.paymentStatus !== 'Payé' ? 'QR Code disponible uniquement pour les étiquettes payées' : ''}
+                        >
+                          <QrCode className="h-4 w-4 mr-2" />
+                          QR
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
                           onClick={() => handleDownload(label.id)}
+                          disabled={label.paymentStatus !== 'Payé'}
+                          className={label.paymentStatus !== 'Payé' ? 'opacity-50 cursor-not-allowed' : ''}
+                          title={label.paymentStatus !== 'Payé' ? 'PDF disponible uniquement pour les étiquettes payées' : ''}
                         >
                           <Download className="h-4 w-4 mr-2" />
-                          Télécharger
+                          PDF
                         </Button>
                       </div>
                     </TableCell>
