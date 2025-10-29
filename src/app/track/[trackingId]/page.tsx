@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Package, MapPin, Phone, Calendar, Truck } from 'lucide-react'
+import { Package, MapPin, Calendar, Truck } from 'lucide-react'
 
 interface TrackingPageProps {
   params: Promise<{ trackingId: string }>
@@ -64,7 +64,7 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Suivi d'expédition
+            Suivi d&apos;expédition
           </h1>
           <p className="text-gray-600">
             Numéro de suivi: <span className="font-mono font-bold">{label.trackingId}</span>
@@ -116,7 +116,7 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Truck className="h-5 w-5" />
-              Détails de l'expédition
+              Détails de l&apos;expédition
             </CardTitle>
           </CardHeader>
           <CardContent>

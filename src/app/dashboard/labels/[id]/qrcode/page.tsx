@@ -137,7 +137,7 @@ export default function QRCodePage({ params }: LabelPageProps) {
             <div>
               <h4 className="font-medium mb-2">1. Impression</h4>
               <p className="text-sm text-gray-600">
-                Imprimez ce QR Code sur l'étiquette d'expédition pour permettre au destinataire de suivre son colis.
+                Imprimez ce QR Code sur l&apos;étiquette d&apos;expédition pour permettre au destinataire de suivre son colis.
               </p>
             </div>
             
@@ -151,7 +151,7 @@ export default function QRCodePage({ params }: LabelPageProps) {
             <div>
               <h4 className="font-medium mb-2">3. Suivi</h4>
               <p className="text-sm text-gray-600">
-                La page de suivi affiche toutes les informations de l'expédition : expéditeur, destinataire, statut, etc.
+                La page de suivi affiche toutes les informations de l&apos;expédition : expéditeur, destinataire, statut, etc.
               </p>
             </div>
           </div>

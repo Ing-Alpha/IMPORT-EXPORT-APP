@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface Client {
   id: string
@@ -176,7 +176,7 @@ export default function ClientsPage() {
                   <TableHead>Société</TableHead>
                   <TableHead>Pays</TableHead>
                   <TableHead>Contact</TableHead>
-                  <TableHead>Date d'ajout</TableHead>
+                  <TableHead>Date d&apos;ajout</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>

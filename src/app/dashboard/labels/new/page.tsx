@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Package, User, MapPin, Phone, Weight, Ruler } from 'lucide-react'
+import { Package, User, MapPin, Ruler } from 'lucide-react'
 
 interface Client {
   id: string
@@ -165,7 +164,7 @@ export default function NewLabelPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Nouvelle étiquette</h1>
-        <p className="text-gray-600">Créer une nouvelle étiquette d'expédition</p>
+        <p className="text-gray-600">Créer une nouvelle étiquette d&apos;expédition</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -215,13 +214,13 @@ export default function NewLabelPage() {
               Expéditeur
             </CardTitle>
             <CardDescription>
-              Informations de l'expéditeur
+              Informations de l&apos;expéditeur
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="senderName">Nom de l'expéditeur *</Label>
+                <Label htmlFor="senderName">Nom de l&apos;expéditeur *</Label>
                 <Input
                   id="senderName"
                   value={formData.senderName}

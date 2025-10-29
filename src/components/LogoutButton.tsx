@@ -37,7 +37,7 @@ export default function LogoutButton({ children }: LogoutButtonProps) {
             Confirmer la déconnexion
           </DialogTitle>
           <DialogDescription>
-            Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau à l'application.
+            Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau à l&apos;application.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex gap-2 sm:gap-0">

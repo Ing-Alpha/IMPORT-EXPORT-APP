@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { translateStatus } from '@/lib/status-translations'
-import { Package, User, MapPin, Phone, Weight, Ruler, ArrowLeft } from 'lucide-react'
+import { Package, User, MapPin, Weight, Ruler, ArrowLeft } from 'lucide-react'
 
 interface Client {
   id: string
@@ -213,7 +213,7 @@ export default function EditLabelPage({ params }: EditLabelPageProps) {
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Éditer l'étiquette {label.trackingId}
+              Éditer l&apos;étiquette {label.trackingId}
             </h1>
             <p className="text-gray-600">
               Client: {label.client.name} {label.client.company && `(${label.client.company})`}
@@ -274,7 +274,7 @@ export default function EditLabelPage({ params }: EditLabelPageProps) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="senderName">Nom de l'expéditeur *</Label>
+                <Label htmlFor="senderName">Nom de l&apos;expéditeur *</Label>
                 <Input
                   id="senderName"
                   value={formData.senderName}

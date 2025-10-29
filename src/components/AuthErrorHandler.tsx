@@ -40,7 +40,7 @@ export default function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerPro
             <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
           </div>
           <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
-            Erreur d'authentification
+            Erreur d&apos;authentification
           </h3>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {error || 'Une erreur est survenue lors de la vérification de votre session.'}
