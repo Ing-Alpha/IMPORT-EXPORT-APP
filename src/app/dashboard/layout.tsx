@@ -114,7 +114,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="pl-64">
         <main className="py-6">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SessionInfo />
+            {/* <SessionInfo /> */}
             {children}
           </div>
         </main>
