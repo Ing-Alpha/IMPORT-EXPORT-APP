@@ -25,7 +25,6 @@ export interface BarcodeOptions {
  */
 export function generateSimpleBarcode(data: string, options: BarcodeOptions = {}): string {
   const width = options.width || 100
-  const height = options.height || 20
   
   // Génération d'un motif simple basé sur les données
   let pattern = ''

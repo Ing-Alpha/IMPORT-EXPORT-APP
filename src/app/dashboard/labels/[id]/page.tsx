@@ -3,10 +3,10 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { translateStatus, getStatusColor as getStatusColorUtil } from '@/lib/status-translations'
-import { Package, User, MapPin, Phone, Weight, Ruler, Download, Edit, Trash2, QrCode } from 'lucide-react'
+import { translateStatus } from '@/lib/status-translations'
+import { Package, User, MapPin, Weight, Ruler, Download, Edit, Trash2, QrCode } from 'lucide-react'
 
 interface Label {
   id: string
@@ -133,7 +133,7 @@ export default function LabelPage({ params }: LabelPageProps) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900">Étiquette non trouvée</h2>
-        <p className="text-gray-600">L'étiquette demandée n'existe pas.</p>
+        <p className="text-gray-600">L&apos;étiquette demandée n&apos;existe pas.</p>
       </div>
     )
   }

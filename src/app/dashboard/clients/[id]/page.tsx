@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +34,6 @@ export default function ClientDetailPage() {
   const [loading, setLoading] = useState(true)
   const [generatingLabel, setGeneratingLabel] = useState(false)
   const params = useParams()
-  const router = useRouter()
 
   useEffect(() => {
     if (params.id) {
@@ -104,7 +103,7 @@ export default function ClientDetailPage() {
     return (
       <div className="text-center py-8">
         <h2 className="text-2xl font-bold text-gray-900">Client non trouvé</h2>
-        <p className="text-gray-600">Le client demandé n'existe pas.</p>
+        <p className="text-gray-600">Le client demandé n&apos;existe pas.</p>
         <Button asChild className="mt-4">
           <Link href="/dashboard/clients">Retour à la liste</Link>
         </Button>
@@ -188,7 +187,7 @@ export default function ClientDetailPage() {
               </div>
             )}
             <div>
-              <label className="text-sm font-medium text-gray-500">Date d'ajout</label>
+              <label className="text-sm font-medium text-gray-500">Date d&apos;ajout</label>
               <p className="text-lg">{new Date(client.createdAt).toLocaleDateString('fr-FR')}</p>
             </div>
           </CardContent>

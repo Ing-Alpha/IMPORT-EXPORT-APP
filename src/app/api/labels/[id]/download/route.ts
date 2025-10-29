@@ -70,7 +70,7 @@ export async function GET(
         length: pkg.length,
         width: pkg.width,
         height: pkg.height,
-        value: pkg.value,
+        value: pkg.value ?? undefined,
         contents: pkg.contents || ''
       }))
     }

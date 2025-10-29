@@ -53,26 +53,22 @@ const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60, // 24 heures en secondes
   },
   callbacks: {
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user, account }) {
       // Initial sign in
       if (account && user) {
-        token.role = user.role
+        token.role = (user as { role?: string }).role || 'USER'
         token.expiresAt = Date.now() + (24 * 60 * 60 * 1000) // 24 heures en millisecondes
-        return token
       }
-
-      // Vérifier l'expiration du token
-      if (token.expiresAt && Date.now() > token.expiresAt) {
-        return null // Token expiré
-      }
-
       return token
     },
-    async session({ session, token }: any) {
-      if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
-        session.expires = new Date(token.expiresAt).toISOString()
+    async session({ session, token }) {
+      if (token && token.sub) {
+        session.user.id = token.sub
+        session.user.role = (token as { role?: string }).role as string
+        const expiresAt = (token as { expiresAt?: number }).expiresAt
+        session.expires = expiresAt 
+          ? new Date(expiresAt).toISOString()
+          : new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString()
       }
       return session
     },

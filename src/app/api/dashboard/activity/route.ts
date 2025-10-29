@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { translateStatus } from '@/lib/status-translations'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -55,10 +55,19 @@ export async function GET(request: NextRequest) {
     ])
 
     // Combiner et formater les activités
-    const activities: any[] = []
+    const activities: Array<{
+      id: string
+      type: string
+      action: string
+      title: string
+      description: string
+      timestamp: Date
+      status?: string
+      color: string
+    }> = []
 
     // Ajouter les étiquettes
-    recentLabels.forEach((label: any) => {
+    recentLabels.forEach((label) => {
       activities.push({
         id: `label-${label.id}`,
         type: 'label',
@@ -74,7 +83,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Ajouter les clients
-    recentClients.forEach((client: any) => {
+    recentClients.forEach((client) => {
       activities.push({
         id: `client-${client.id}`,
         type: 'client',

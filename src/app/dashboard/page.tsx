@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Users, Package, History, Plus, TrendingUp, TrendingDown, Calendar, DollarSign, RefreshCw } from 'lucide-react'
+import { Users, Package, Plus, TrendingUp, TrendingDown, Calendar, DollarSign, RefreshCw } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 
 interface DashboardStats {
@@ -41,8 +41,6 @@ interface ActivityData {
   status?: string
   color: string
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -204,7 +202,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Chiffre d'affaires</CardTitle>
+            <CardTitle className="text-sm font-medium">Chiffre d&apos;affaires</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -223,7 +221,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Évolution des étiquettes</CardTitle>
             <CardDescription>
-              Nombre d'étiquettes générées par mois
+              Nombre d&apos;étiquettes générées par mois
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -279,7 +277,7 @@ export default function DashboardPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }: any) => `${name} ${((percent as number) * 100).toFixed(0)}%`}
+                  label={(props: { name?: string; percent?: number }) => `${props.name || ''} ${((props.percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -297,9 +295,9 @@ export default function DashboardPage() {
         {/* Revenue Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Évolution du chiffre d'affaires</CardTitle>
+            <CardTitle>Évolution du chiffre d&apos;affaires</CardTitle>
             <CardDescription>
-              Chiffre d'affaires par mois
+              Chiffre d&apos;affaires par mois
             </CardDescription>
           </CardHeader>
           <CardContent>

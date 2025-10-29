@@ -45,7 +45,7 @@ export default function NewClientPage() {
         const data = await response.json()
         setError(data.error || 'Une erreur est survenue')
       }
-    } catch (error) {
+    } catch {
       setError('Une erreur est survenue')
     } finally {
       setIsLoading(false)

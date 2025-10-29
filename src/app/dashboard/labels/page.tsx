@@ -69,7 +69,7 @@ export default function LabelsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Étiquettes</h1>
-          <p className="text-gray-600">Gérez vos étiquettes d'expédition</p>
+          <p className="text-gray-600">Gérez vos étiquettes d&apos;expédition</p>
         </div>
         <Link href="/dashboard/labels/new">
           <Button>
@@ -143,7 +143,7 @@ export default function LabelsPage() {
             <Link href="/dashboard/history">
               <Button variant="outline" size="sm">
                 <History className="h-4 w-4 mr-2" />
-                Voir tout l'historique
+                Voir tout l&apos;historique
               </Button>
             </Link>
           </div>

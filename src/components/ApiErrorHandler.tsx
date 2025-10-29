@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 
 interface ApiErrorHandlerProps {
-  error?: any
+  error?: { status?: number; message?: string }
   onRetry?: () => void
 }
 
 export function useApiErrorHandler() {
   const router = useRouter()
 
-  const handleApiError = (error: any) => {
+  const handleApiError = (error: { status?: number; message?: string }) => {
     console.error('API Error:', error)
 
     // Vérifier si l'erreur est liée à l'authentification

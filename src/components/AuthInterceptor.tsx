@@ -4,7 +4,6 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSessionExpiration } from '@/hooks/useSessionExpiration'
-import { useGlobalErrorHandler } from '@/hooks/useGlobalErrorHandler'
 import AuthErrorHandler from './AuthErrorHandler'
 
 interface AuthInterceptorProps {
@@ -84,7 +83,7 @@ export default function AuthInterceptor({ children }: AuthInterceptorProps) {
                   Session critique
                 </h3>
                 <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                  <p>Votre session expire dans moins d'une minute. Vous allez être déconnecté automatiquement.</p>
+                  <p>Votre session expire dans moins d&apos;une minute. Vous allez être déconnecté automatiquement.</p>
                 </div>
                 <div className="mt-4">
                   <button

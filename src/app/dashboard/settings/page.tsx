@@ -135,7 +135,7 @@ export default function SettingsPage() {
       {/* Application Info */}
       <Card>
         <CardHeader>
-          <CardTitle>Informations de l'application</CardTitle>
+          <CardTitle>Informations de l&apos;application</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between">

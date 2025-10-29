@@ -46,7 +46,7 @@ export function useGlobalErrorHandler() {
   }, [router])
 
   return {
-    handleAuthError: (error: any) => {
+    handleAuthError: (error: { status?: number; message?: string }) => {
       if (error?.status === 401 || 
           error?.message?.includes('Unauthorized') ||
           error?.message?.includes('Token expired')) {

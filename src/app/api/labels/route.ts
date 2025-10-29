@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     // Créer les colis associés si fournis
     if (packages.length > 0) {
       await prisma.package.createMany({
-        data: packages.map((pkg: any) => ({
+        data: packages.map((pkg: { description?: string; weight?: number; length?: number; width?: number; height?: number; value?: number; contents?: string }) => ({
           labelId: label.id,
           description: pkg.description,
           weight: pkg.weight || 1.0,

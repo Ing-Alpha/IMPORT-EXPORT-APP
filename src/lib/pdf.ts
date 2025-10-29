@@ -382,9 +382,8 @@ export async function generateLabelPDF(data: LabelData): Promise<Uint8Array> {
   
   return await pdfDoc.save()
 }
-
+// TODO: Ajouter la génération de l'ID de suivi
 export function generateTrackingId(): string {
-  const timestamp = Date.now().toString(36)
   const random = Math.random().toString(36).substring(2, 8)
   return `FRA${random.toUpperCase()}`
 }
